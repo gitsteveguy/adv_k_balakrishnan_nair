@@ -61,6 +61,8 @@ body {
   background: white;
   min-height: 100svh;
   margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 header {
   display: flex;
@@ -86,11 +88,15 @@ menu {
   gap: 1rem;
 }
 section {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  flex: 1;
   display: flex;
   justify-content: space-evenly;
   gap: 1rem;
   text-align: center;
-  min-height: 100vh;
+  min-height: 100%;
+  /* min-height: 100vh; */
 }
 #hero-vid {
   aspect-ratio: 16/9;
@@ -131,7 +137,7 @@ footer {
   background-color: var(--primary-color);
   padding: 0.25rem 0;
   width: 100%;
-  h4 {
+  h5 {
     color: white !important;
   }
 }
@@ -213,6 +219,9 @@ h6 {
 @media screen and (max-width: 900px) {
   #desktop-menu {
     display: none;
+  }
+  #details {
+    height: unset;
   }
   @keyframes jellyScale {
     0% {
