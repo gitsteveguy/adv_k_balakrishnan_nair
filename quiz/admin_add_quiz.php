@@ -2,6 +2,8 @@
 require_once("./header.php");
 require_once("./admin_protect.php");
 if (isset($_POST['add_quiz'])) {
+    $quiz_id;
+    $total_marks = 0;
     $quiz_name = $_POST['quiz_name'];
     $duration_in_minutes = $_POST['duration_in_minutes'];
 
@@ -23,8 +25,14 @@ if (isset($_POST['add_quiz'])) {
             $opt_d = $question_data['option_d'];
             $correct_option = $question_data['correct_option'];
             $stmt2->execute();
+            $total_marks++;
         }
+        $mstmt = $con->prepare("UPDATE quizzes SET total_marks = ? WHERE quiz_id = ?");
+        $mstmt->bind_param("ii", $total_marks, $quiz_id);
+        $mstmt->execute();
+        $mstmt->close();
         header("Location: " . $Globals['domain'] . "/quiz/admin_dashboard.php?status=success");
+        exit();
     } else {
         $stmt->close();
     }
@@ -40,7 +48,7 @@ if (isset($_POST['add_quiz'])) {
                 <form class="add-quiz-form" method="post">
                     <div class="quiz-attributes">
                         <input type="text" maxlength="100" name="quiz_name" placeholder="Quiz Name" required>
-                        <input type="number" name="duration_in_minutes" placeholder="Duration In Mins" required>
+                        <input type="number" name="duration_in_minutes" min="10" placeholder="Duration In Mins (min : 10)" required>
                     </div>
                     <div class="question-creation-container">
                         <!-- <div class="question-creation-block">

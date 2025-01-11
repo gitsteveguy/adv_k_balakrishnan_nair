@@ -14,8 +14,13 @@ $search = isset($_POST['search']) ? $_POST['search'] : '';
 
 // SQL query to fetch participants with search
 // Define the base query with placeholders
-$sql = "SELECT * FROM quizzes 
-        WHERE quiz_name LIKE ? ORDER BY start_time DESC
+$sql = "SELECT quiz_id, quiz_name, 
+       (CASE 
+            WHEN start_time IS NULL OR stop_time IS NULL THEN 0
+            WHEN stop_time <= NOW() THEN 0 
+            ELSE 1 
+        END) AS is_running , duration_in_minutes,total_marks,start_time,stop_time,allowed_entry,is_conducted
+FROM quizzes WHERE quiz_name LIKE ? ORDER BY start_time DESC
         LIMIT ?,? ";
 
 // Prepare the statement
@@ -63,7 +68,7 @@ $total_pages = ceil($total_records / $records_per_page);
 <body>
     <h2>Welcome <?php echo $_SESSION['user']['first_name'] ?></h2>
     <section class="dashboard-home-section grid participant-section">
-        <h3>Participants</h3>
+        <h3>Quizzes</h3>
         <form method="post" class="search-form">
             <input type="text" name="search" placeholder="Search by Quiz Name" value="<?php echo htmlspecialchars($search); ?>">
             <button type="submit" value="Search"><span class="material-symbols-rounded">
@@ -77,69 +82,98 @@ $total_pages = ceil($total_records / $records_per_page);
                         <th>Quiz Name</th>
                         <th>Is Running ?</th>
                         <th>Duration in Mins</th>
+                        <th>Total Marks</th>
                         <th>Start Time</th>
                         <th>Stop Time</th>
                         <th>Allowed Entry</th>
+                        <th>Already Conducted ?</th>
                         <th>Action</th>
 
                     </tr>
                 </thead>
-                <tbody>
+                <div>
                     <?php
                     // Check if there are any results
                     if ($result->num_rows > 0) {
                         // Loop through and display the data
                         while ($row = $result->fetch_assoc()) {
+                            $start_time = $row['start_time'] == null ? 'Not Started' : $row['start_time'];
+                            $stop_time = $row['stop_time'] == null ? 'Not Started' : $row['stop_time'];
+                            $is_running = false;
+
+                            if ($row['stop_time'] != null) {  // Explicitly check for NOT NULL
+
+                                $stop_time_dt = new DateTime($row['stop_time']);
+                                $stop_timespamp = $stop_time_dt->getTimestamp();
+                                $current_time = new DateTime();
+                                $current_timestamp = $current_time->getTimestamp();
+                                if ($current_timestamp <= $stop_timespamp) {
+                                    $is_running = true;
+                                }
+                            }
                             echo "<tr>";
                             echo "<td>" . htmlspecialchars($row['quiz_name']) . "</td>";
-                            echo "<td>" . htmlspecialchars(!$row['is_running'] ? 'No' : 'Yes') . "</td>";
+                            echo "<td>" . htmlspecialchars($is_running ? 'Yes' : 'No') . "</td>";
                             echo "<td>" . htmlspecialchars($row['duration_in_minutes']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['start_time']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['stop_time']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['total_marks']) . "</td>";
+                            echo "<td>" . htmlspecialchars($start_time) . "</td>";
+                            echo "<td>" . htmlspecialchars($stop_time) . "</td>";
                             echo "<td>" . htmlspecialchars(!$row['allowed_entry'] ? 'No' : 'Yes') . "</td>";
-                            if ($row['is_running'] == 0) {
+                            echo "<td>" . htmlspecialchars(!$row['is_conducted'] ? 'No' : 'Yes') . "</td>";
+                            echo '<td>';
+                            echo '<div class="action-col-div">';
+                            if (!$is_running) {
                     ?>
-                                <td class="action-col"><a class="hlink" href="<?php echo $Globals['domain'] ?>/quiz/admin_edit_quiz.php?qid=<?php echo $row['quiz_id'] ?>" class="hlink">
-                                        <div class="tbl-icon-container secondary">
-                                            <span class="material-symbols-rounded">
-                                                edit
-                                            </span>
-                                        </div>
-                                    </a>
-                                <?php
+
+                                <a class="hlink" href="<?php echo $Globals['domain'] ?>/quiz/admin_edit_quiz.php?qid=<?php echo $row['quiz_id'] ?>" class="hlink">
+                                    <div class="tbl-icon-container secondary">
+                                        <span class="material-symbols-rounded">
+                                            edit
+                                        </span>
+                                    </div>
+                                </a>
+                            <?php
                             }
-                            if (!$row['allowed_entry'] && !$row['is_running'] && $row['start_time'] == null) {
-                                ?>
-                                    <a class="hlink" href="<?php echo $Globals['domain'] ?>/quiz/admin_allow_entry.php?qid=<?php echo $row['quiz_id'] ?>" class="hlink">
-                                        <div class="tbl-icon-container secondary">
-                                            <span class="material-symbols-rounded">
-                                                login
-                                            </span>
-                                        </div>
-                                    </a>
-                                <?php
+                            if (!$row['allowed_entry'] && !$is_running && $row['start_time'] == null) {
+                            ?>
+                                <a class="hlink" href="<?php echo $Globals['domain'] ?>/quiz/admin_allow_entry.php?qid=<?php echo $row['quiz_id'] ?>" class="hlink">
+                                    <div class="tbl-icon-container secondary">
+                                        <span class="material-symbols-rounded">
+                                            login
+                                        </span>
+                                    </div>
+                                </a>
+                            <?php
                             }
 
 
-                            if ($row['start_time'] == null && $row['is_running'] == 0 && $row['allowed_entry']) {
-                                ?>
-                                    <a class="hlink" href="<?php echo $Globals['domain'] ?>/quiz/admin_start_quiz.php?qid=<?php echo $row['quiz_id'] ?>" class="hlink">
-                                        <div class="tbl-icon-container secondary">
-                                            <span class="material-symbols-rounded">
-                                                play_arrow
-                                            </span>
-                                        </div>
-                                    </a>
-                                </td>
-                    <?php
+                            if ($row['start_time'] == null && !$is_running && $row['allowed_entry']) {
+                            ?>
+                                <a class="hlink" href="<?php echo $Globals['domain'] ?>/quiz/admin_start_quiz.php?qid=<?php echo $row['quiz_id'] ?>" class="hlink">
+                                    <div class="tbl-icon-container secondary">
+                                        <span class="material-symbols-rounded">
+                                            play_arrow
+                                        </span>
+                                    </div>
+                                </a>
+                </div>
+                </td>
+            <?php
+                            }
+                            if ($row['start_time'] != null && $is_running && $row['allowed_entry']) {
+            ?>
+                <div class="qz-running-text">
+                    Quiz is Running
+                </div>
+    <?php
                             }
                             echo "</tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='14'>No participants found</td></tr>";
+                        echo "<tr><td colspan='14'>No Quizzes found</td></tr>";
                     }
-                    ?>
-                </tbody>
+    ?>
+    </tbody>
             </table>
         </div>
         <div class="pagination">

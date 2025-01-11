@@ -8,6 +8,10 @@ if (isset($_GET['dqnid']) && isset($_GET['qid'])) {
     $del_stmt = $con->prepare($sql);
     $del_stmt->bind_param('i', $question_id);
     if ($del_stmt->execute()) {
+        $msql = $con->prepare("UPDATE quizzes SET total_marks=total_marks - 1 WHERE quiz_id = ?");
+        $msql->bind_param('i', $quiz_id);
+        $msql->execute();
+        $msql->close();
         header("Location: " . $Globals['domain'] . "/quiz/admin_edit_quiz.php?qid=5");
     }
     $del_stmt->close();

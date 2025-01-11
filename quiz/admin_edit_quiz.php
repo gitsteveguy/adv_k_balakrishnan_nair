@@ -4,6 +4,7 @@ require_once("./admin_protect.php");
 
 $quiz_id;
 $quiz_attributes;
+$total_additional_score = 0;
 if (isset($_GET['qid'])) {
     $quiz_id = $_GET['qid'];
 }
@@ -45,11 +46,16 @@ if (isset($_POST['update_quiz'])) {
                 $opt_c = $question_data['option_c'];
                 $opt_d = $question_data['option_d'];
                 $correct_option = $question_data['correct_option'];
-
+                $total_additional_score++;
                 if (!$stmt2->execute()) {
                     throw new Exception('Question insertion failed: ' . $stmt2->error);
                 }
             }
+            $msql = "UPDATE quizzes SET total_marks = total_marks + ? WHERE quiz_id = ?";
+            $mstmt = $con->prepare($msql);
+            $mstmt->bind_param('ii', $total_additional_score, $quiz_id);
+            $mstmt->execute();
+            $mstmt->close();
             $stmt2->close();
         }
 
@@ -80,7 +86,7 @@ if (isset($_POST['update_quiz'])) {
 
         // Commit transaction
         $con->commit();
-        header("Location: " . $Globals['domain'] . "/quiz/admin_dashboard.php?status=success");
+        header("Location: " . $Globals['domain'] . "/quiz/admin_view_quiz.php?status=success");
     } catch (Exception $e) {
         $con->rollback();
         echo 'Error: ' . $e->getMessage();
@@ -122,7 +128,7 @@ if (isset($_GET['qid'])) {
                 <form class="add-quiz-form" method="post">
                     <div class="quiz-attributes">
                         <input type="text" maxlength="100" name="quiz_name" placeholder="Quiz Name" required value="<?php echo $quiz_attributes['quiz_name'] ?>">
-                        <input type="number" name="duration_in_minutes" placeholder="Duration In Mins" required value="<?php echo $quiz_attributes['duration_in_minutes'] ?>">
+                        <input type="number" name="duration_in_minutes" placeholder="Duration In Mins (min: 10)" min="10" required value="<?php echo $quiz_attributes['duration_in_minutes'] ?>">
                     </div>
                     <div class="question-updation-container border">
                         <h2>Update Questions</h2>

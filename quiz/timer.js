@@ -23,6 +23,7 @@ function startTimer(minutes) {
     if (timeLeft > 0) {
       timeLeft--;
     } else {
+      document.getElementById(formId).submit();
       clearInterval(timerInterval);
     }
   };
