@@ -6,7 +6,7 @@ function togglemenu() {
 }
 const gallery_data = [
   {
-    src: "prof_e_kunhiraman.jpg",
+    src: "prof_e_kunhiraman.webp",
     member_name: "Prof. E. Kunhiraman",
     title: "Chief Patron",
     desc: "Adv. K. Balakrishnan Nair Foundation",
