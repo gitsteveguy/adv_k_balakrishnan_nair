@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 09, 2025 at 04:39 PM
+-- Generation Time: Jan 13, 2025 at 11:58 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -38,7 +38,7 @@ CREATE TABLE `globals` (
 --
 
 INSERT INTO `globals` (`global_id`, `name`, `value`) VALUES
-(1, 'domain', 'http://localhost/adv_k_balakrishnannair');
+(1, 'domain', 'http://192.168.31.33/adv_k_balakrishnannair');
 
 -- --------------------------------------------------------
 
@@ -62,10 +62,10 @@ CREATE TABLE `questions` (
 --
 
 INSERT INTO `questions` (`question_id`, `quiz_id`, `question`, `option_a`, `option_b`, `option_c`, `option_d`, `correct_option`) VALUES
-(44, 5, 'test qn 1 ?', 'a1', 'b1', 'c1', 'd1', 'a'),
-(45, 5, 'test qn 2 ?', 'a2', 'b2', 'c2', 'd2', 'b'),
-(46, 6, 'Capital of India ?', 'Delhi', 'Trivandrum', 'Bombay', 'Kolkata', 'a'),
-(47, 6, 'qn2', 'opt 1', 'opt 2', 'opt 3', 'opt 4', 'b');
+(57, 10, 'Capital of UAE ?', 'Trivandrum', 'Delhi', 'Guahati', 'Abu Dhabi', 'd'),
+(58, 10, 'Capital of Russia', 'Delhi', 'Moscow', 'Guahati', 'Bombay', 'b'),
+(59, 11, 'test qn 1', 'a', 'b', 'c', 'd', 'a'),
+(60, 11, 'test qn2', 'Kochi', 'Trivandrum', 'Kollam', 'Thrissur', 'd');
 
 -- --------------------------------------------------------
 
@@ -81,6 +81,14 @@ CREATE TABLE `question_answer_submissions` (
   `submitted_answer` enum('a','b','c','d') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `question_answer_submissions`
+--
+
+INSERT INTO `question_answer_submissions` (`question_answer_submission_id`, `question_id`, `participant_id`, `quiz_id`, `submitted_answer`) VALUES
+(53, 59, 2, 11, 'a'),
+(54, 60, 2, 11, 'd');
+
 -- --------------------------------------------------------
 
 --
@@ -90,20 +98,21 @@ CREATE TABLE `question_answer_submissions` (
 CREATE TABLE `quizzes` (
   `quiz_id` bigint(100) NOT NULL,
   `quiz_name` varchar(50) NOT NULL,
-  `is_running` tinyint(1) NOT NULL DEFAULT 0,
   `duration_in_minutes` int(5) NOT NULL,
+  `total_marks` int(5) DEFAULT NULL,
   `start_time` datetime DEFAULT NULL,
   `stop_time` datetime DEFAULT NULL,
-  `allowed_entry` tinyint(1) NOT NULL DEFAULT 0
+  `allowed_entry` tinyint(1) NOT NULL DEFAULT 0,
+  `is_conducted` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `quizzes`
 --
 
-INSERT INTO `quizzes` (`quiz_id`, `quiz_name`, `is_running`, `duration_in_minutes`, `start_time`, `stop_time`, `allowed_entry`) VALUES
-(5, 'Test Quiz 10', 1, 60, NULL, NULL, 0),
-(6, 'Lexathon Test', 1, 30, '2025-01-09 17:06:25', NULL, 1);
+INSERT INTO `quizzes` (`quiz_id`, `quiz_name`, `duration_in_minutes`, `total_marks`, `start_time`, `stop_time`, `allowed_entry`, `is_conducted`) VALUES
+(10, 'Test Quiz 6', 21, 2, '2025-01-11 14:21:47', '2025-01-11 14:52:47', 1, 0),
+(11, 'Test Quiz 7', 20, 2, '2025-01-13 10:38:53', '2025-01-13 11:08:53', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -115,9 +124,19 @@ CREATE TABLE `quiz_submissions` (
   `quiz_submission_id` bigint(100) NOT NULL,
   `quiz_id` bigint(100) NOT NULL,
   `participant_id` bigint(20) NOT NULL,
-  `score` int(4) NOT NULL,
-  `certificate_path` text DEFAULT NULL
+  `quiz_start_time` datetime NOT NULL,
+  `quiz_submission_time` datetime DEFAULT NULL,
+  `score` int(4) DEFAULT NULL,
+  `disqualified_submission` tinyint(1) DEFAULT 0,
+  `disqualification_reason` varchar(300) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `quiz_submissions`
+--
+
+INSERT INTO `quiz_submissions` (`quiz_submission_id`, `quiz_id`, `participant_id`, `quiz_start_time`, `quiz_submission_time`, `score`, `disqualified_submission`, `disqualification_reason`) VALUES
+(59, 11, 2, '2025-01-13 10:46:02', '2025-01-13 10:46:08', 2, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -142,17 +161,18 @@ CREATE TABLE `users` (
   `ini_col_code` varchar(50) NOT NULL,
   `year_of_joining` year(4) NOT NULL,
   `programme` varchar(100) NOT NULL,
-  `disqualified` tinyint(1) NOT NULL DEFAULT 0
+  `disqualified` tinyint(1) NOT NULL DEFAULT 0,
+  `disqualification_reason` varchar(300) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `email`, `password`, `role`, `first_name`, `last_name`, `phone_no`, `college`, `city`, `state`, `country`, `pincode`, `graduation_year`, `ini_col_code`, `year_of_joining`, `programme`, `disqualified`) VALUES
-(1, 'admin@advkbalakrishnannair.com', '$2y$10$SbVP28gO9nKzkesBSS.T/Oz.zbkAukSY2GCw.9ry1dGIiwmup73U2', 'admin', 'Admin', 'Admin', '9876543210', 'N.A', 'Trivandrum', 'Kerala', 'India', '695012', '2025', '', '0000', '', 0),
-(2, 'student@test.com', '$2y$10$SbVP28gO9nKzkesBSS.T/Oz.zbkAukSY2GCw.9ry1dGIiwmup73U2', 'participant', 'Student', 'Student', '9876543210', 'test college', 'Trivandrum', 'Kerala', 'India', '695012', '2025', '', '0000', '', 0),
-(3, 'stevesajanjacobkallunkal004@gmail.com', '$2y$10$JYVZ7BOrCVUMloirQeJiYeizEDVzDhwed1OaJUTzu7E5RbBMeARyW', 'participant', 'Steve Sajanj', 'Jacoba', '6238936249', 'CNja', 'Trivandruma', 'Keralaa', 'Indiaa', '695583', '2025', '335', '2023', 'BCAa', 0);
+INSERT INTO `users` (`user_id`, `email`, `password`, `role`, `first_name`, `last_name`, `phone_no`, `college`, `city`, `state`, `country`, `pincode`, `graduation_year`, `ini_col_code`, `year_of_joining`, `programme`, `disqualified`, `disqualification_reason`) VALUES
+(1, 'admin@advkbalakrishnannair.com', '$2y$10$SbVP28gO9nKzkesBSS.T/Oz.zbkAukSY2GCw.9ry1dGIiwmup73U2', 'admin', 'Admin', 'Admin', '9876543210', 'N.A', 'Trivandrum', 'Kerala', 'India', '695012', '2025', '', '0000', '', 0, NULL),
+(2, 'student@test.com', '$2y$10$SbVP28gO9nKzkesBSS.T/Oz.zbkAukSY2GCw.9ry1dGIiwmup73U2', 'participant', 'Student', 'Student', '9876543210', 'test college', 'Trivandrum', 'Kerala', 'India', '695012', '2025', '', '0000', '', 0, NULL),
+(3, 'stevesajanjacobkallunkal004@gmail.com', '$2y$10$JYVZ7BOrCVUMloirQeJiYeizEDVzDhwed1OaJUTzu7E5RbBMeARyW', 'participant', 'Steve Sajanj', 'Jacoba', '6238936249', 'CNja', 'Trivandruma', 'Keralaa', 'Indiaa', '695583', '2025', '335', '2023', 'BCAa', 0, NULL);
 
 --
 -- Indexes for dumped tables
@@ -215,25 +235,25 @@ ALTER TABLE `globals`
 -- AUTO_INCREMENT for table `questions`
 --
 ALTER TABLE `questions`
-  MODIFY `question_id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `question_id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT for table `question_answer_submissions`
 --
 ALTER TABLE `question_answer_submissions`
-  MODIFY `question_answer_submission_id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `question_answer_submission_id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT for table `quizzes`
 --
 ALTER TABLE `quizzes`
-  MODIFY `quiz_id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `quiz_id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `quiz_submissions`
 --
 ALTER TABLE `quiz_submissions`
-  MODIFY `quiz_submission_id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `quiz_submission_id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT for table `users`

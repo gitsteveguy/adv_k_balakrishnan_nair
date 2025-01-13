@@ -106,6 +106,8 @@ if ($result->num_rows > 0) {
         $fontColor = imagecolorallocate($image, 155, 4, 4);
         $year_logo_color
             = imagecolorallocate($image, 6, 31, 106);
+        $text_color
+            = imagecolorallocate($image, 0, 0, 0);
         $angle = 0;
         $nameFontSize = 70;
         $logo_year_size = 40;
@@ -114,14 +116,32 @@ if ($result->num_rows > 0) {
         $imageWidth = imagesx($image);
         $nameBox = imagettfbbox($nameFontSize, $angle, $fontPath, $name);
         $nameWidth = $nameBox[2] - $nameBox[0];
-        $nameX = ($imageWidth - $nameWidth) / 2;
+        $nameX = (($imageWidth - $nameWidth) / 2) - 40;
         $nameY = 720;
 
-        $yearX = 1050; // Adjust based on design
-        $yearY = 160;
+        $logo_yearX = 1050; // Adjust based on design
+        $logo_yearY = 160;
 
-        imagettftext($image, $nameFontSize, $angle, $nameX, $nameY, $fontColor, $fontPath, $name);
-        imagettftext($image, $logo_year_size, $angle, $yearX, $yearY, $year_logo_color, $boldFontPath, $year);
+        $lex_text_yearX = 700;
+        $lex_text_yearY = 847;
+        $lex_text_year_size = 32;
+
+        $anniversery_number_ordinalX = 1200;
+        $anniversery_number_ordinalY = 970;
+        $anniversery_number_ordinal_size = 32;
+
+        $anniversery_yearX = 1420;
+        $anniversery_yearY = 1035;
+        $anniversery_year_size = 32;
+
+        imagettftext($image, $nameFontSize, $angle, $nameX, $nameY, $fontColor, $boldFontPath, $name);
+        imagettftext($image, $logo_year_size, $angle, $logo_yearX, $logo_yearY, $year_logo_color, $boldFontPath, $year);
+
+        imagettftext($image, $lex_text_year_size, $angle, $lex_text_yearX, $lex_text_yearY, $text_color, $boldFontPath, $year);
+
+        imagettftext($image, $anniversery_number_ordinal_size, $angle, $anniversery_number_ordinalX, $anniversery_number_ordinalY, $text_color, $fontPath, $anniversery_number_ordinal);
+
+        imagettftext($image, $anniversery_year_size, $angle, $anniversery_yearX, $anniversery_yearY, $text_color, $fontPath, $year . '.');
 
         imagepng($image);
         imagedestroy($image);

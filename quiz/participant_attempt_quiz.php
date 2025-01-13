@@ -244,6 +244,7 @@ if ($quiz['start_time'] != null && $quiz['stop_time'] != null) {
             <div class="waiting-message-container">
                 <h3>Quiz has not started yet.</h3>
                 <h3>Please wait for Quiz Master's Instruction.</h3>
+                <h3>NB: Any attempt at malpractice, including opening other applications during the quiz, will result in immediate disqualification.</h3>
                 <h4 id="instruction_text"></h4>
                 <button id="exam_btn" onclick="location.reload()">Load Quiz</button>
             </div>
@@ -281,7 +282,7 @@ if ($quiz['start_time'] != null && $quiz['stop_time'] != null) {
                 let rinput = document.createElement("input");
                 rinput.type = "hidden";
                 rinput.name = "cheat_reason";
-                rinput.value = "Detected Potential Malpractice";
+                rinput.value = "Detected Potential attempt to access other application.";
                 form.appendChild(rinput);
 
                 // Append the form to the body and submit it
