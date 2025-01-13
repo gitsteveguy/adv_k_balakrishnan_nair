@@ -84,18 +84,19 @@ if (!isset($_SESSION['user']) && !$current_filename == 'index.php') {
             <span id="menuicon" class="material-symbols-rounded">
                 menu
             </span>
-            <menu id="desktop-menu">
-                <li><a href="<?php echo $Globals['domain'] ?>">Home</a></li>
-                <li><a href="<?php echo $Globals['domain'] ?>/organising_committee.html">About</a></li>
-                <li><a class="active" href="<?php echo $Globals['domain'] ?>/quiz">Online Quiz</a></li>
-                <li><a href="<?php echo $Globals['domain'] ?>/contact.html">Contact Us</a></li>
-                <?php
-                if (isset($_SESSION['user'])) {
-                ?>
-                    <li><a href="logout.php">Logout</a></li>
-                <?php
-                }
-                ?>
-            </menu>
+        </div>
+        <menu id="desktop-menu">
+            <li><a href="<?php echo $Globals['domain'] ?>">Home</a></li>
+            <li><a href="<?php echo $Globals['domain'] ?>/organising_committee.html">About</a></li>
+            <li><a class="active" href="<?php echo $Globals['domain'] ?>/quiz">Online Quiz</a></li>
+            <li><a href="<?php echo $Globals['domain'] ?>/contact.html">Contact Us</a></li>
+            <?php
+            if (isset($_SESSION['user'])) {
+            ?>
+                <li><a href="logout.php">Logout</a></li>
+            <?php
+            }
+            ?>
+        </menu>
     </nav>
 </header>
