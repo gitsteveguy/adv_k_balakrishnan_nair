@@ -118,6 +118,9 @@ section {
     border-radius: 20px;
   }
 }
+.member-card {
+  max-width: 15rem;
+}
 #contact-us {
   height: 90vh;
 }

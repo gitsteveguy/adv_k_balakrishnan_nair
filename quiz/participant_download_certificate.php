@@ -75,12 +75,15 @@ if ($result->num_rows > 0) {
 
         // Load the certificate template
         $templatePath = './assets/certificates/Lexathon_Certificate_Template.png';
+        $fontPath = './assets/certificates/Arial.ttf';
         $image = imagecreatefrompng($templatePath);
 
         // Set font properties
-        $fontColor = imagecolorallocate($image, 0, 0, 0); // Black color (RGB)
-        $nameFontSize = 5; // Font size (1-5 for built-in fonts)
-
+        $fontColor = imagecolorallocate($image, 155, 4, 4); // Black color (RGB)
+        $angle = 0;
+        $nameFontSize = 55; // Font size (1-5 for built-in fonts)
+        $logo_year_size = 30;
+        $text_content_size = 19;
 
 
         // Coordinates for text placement
@@ -93,9 +96,8 @@ if ($result->num_rows > 0) {
         $anniversery_number_ordinalY = 500;
 
         // Add text using built-in fonts
-        imagestring($image, $nameFontSize, $nameX, $nameY, $name, $fontColor);
-        imagestring($image, $nameFontSize, $yearX, $yearY, $year, $fontColor);
-        imagestring($image, $nameFontSize, $anniversery_number_ordinalX, $anniversery_number_ordinalY, $anniversery_number_ordinal, $fontColor);
+        imagettftext($image, $nameFontSize, $angle, $nameX, $nameY, $fontColor, $fontPath, $name);
+        imagettftext($image, $logo_year_size, $angle, $yearX, $yearY, $fontColor, $fontPath, $year);
 
         // Output the image as a PNG
         imagepng($image);
