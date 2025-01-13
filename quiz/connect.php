@@ -5,5 +5,5 @@ try {
         // die("Connection failed: " . $con->connect_error);
     }
 } catch (Exception $e) {
-    header("Location: https://advkbalakrishnannair.com/");
+    header("Location: https://advkbalakrishnannair.com/quiz_coming_soon.html");
 }

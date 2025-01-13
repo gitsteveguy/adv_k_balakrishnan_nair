@@ -5,7 +5,6 @@
     <div>
         <h5>Powered By COSTECH</h5>
     </div>
-    <script src="script.js"></script>
 </footer>
 
 </html>

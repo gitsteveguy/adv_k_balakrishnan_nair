@@ -11,6 +11,15 @@ if (isset($_POST['score']) && isset($_POST['total_possible_score']) && isset($_P
 ?>
 
 <body>
+    <style>
+        header {
+            justify-content: center;
+        }
+
+        #header-nav {
+            display: none;
+        }
+    </style>
     <h2>Quiz Submitted Successfully</h2>
     <section class="quiz_submission_result_container">
         <div class="white-card">
@@ -18,7 +27,7 @@ if (isset($_POST['score']) && isset($_POST['total_possible_score']) && isset($_P
             <h3>Total Score : <?php echo $total_possible_score ?></h3>
         </div>
         <a href="<?php echo $Globals['domain'] ?>/quiz/participant_view_quiz_result.php?qid=" <?php echo $quiz_id ?>>View Detailed Quiz Result</a>
-        <a href="<?php echo $Globals['domain'] ?>/quiz" <?php echo $quiz_id ?>>Back to Dashboard</a>
+        <a onclick="window.close()">Back to Dashboard</a>
     </section>
 
     <?php

@@ -79,7 +79,7 @@ if (!isset($_SESSION['user']) && !$current_filename == 'index.php') {
             ?>
         </menu>
     </div>
-    <nav>
+    <nav id="header-nav">
         <div onclick="togglemenu()">
             <span id="menuicon" class="material-symbols-rounded">
                 menu

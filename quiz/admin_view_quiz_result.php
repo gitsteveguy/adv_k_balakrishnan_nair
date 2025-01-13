@@ -1,13 +1,21 @@
 <?php
 require_once("./header.php");
-require_once("./participant_protect.php");
+require_once("./admin_protect.php");
 $quiz_id;
 $quiz;
 $quiz_questions;
 $participant_id;
-if (isset($_GET['qid'])) {
+$participant;
+if (isset($_GET['qid']) && isset($_GET['uid'])) {
     $quiz_id = $_GET['qid'];
-    $participant_id = $_SESSION['user']['user_id'];
+    $participant_id = $_GET['uid'];
+    $psql = "SELECT first_name,last_name FROM users WHERE user_id = ?";
+    $pstmt = $con->prepare($psql);
+    $pstmt->bind_param('i', $participant_id);
+    $pstmt->execute();
+    $presult = $pstmt->get_result();
+    $participant = $presult->fetch_assoc();
+    $pstmt->close();
 } else {
     $location = 'participant_dashboard.php';
 }
@@ -74,7 +82,7 @@ ORDER BY
 
 <body>
     <div class="heading-container">
-        <h2>Quiz Result</h2>
+        <h2>Quiz Result </h2>
         <a onclick="history.back()"><span class="material-symbols-rounded">
                 arrow_back_ios
             </span> Back</a>
@@ -85,7 +93,7 @@ ORDER BY
                 <h2><?php echo $quiz['quiz_name']; ?></h2>
                 <form class="quiz-form" method="post" id="quiz-form" inert>
                     <div class="quiz-attributes">
-                        <h3>Your scored : <?php echo $quiz_submission['score'] . ' / ' . $quiz['total_marks'] ?></h3>
+                        <h3><?php echo $participant['first_name'] . ' ' . $participant['last_name']; ?> scored : <?php echo $quiz_submission['score'] . ' / ' . $quiz['total_marks'] ?></h3>
                     </div>
                     <div class="questions-container">
                         <?php

@@ -10,13 +10,19 @@ $allow_attempt = true;
 $attempt_reject_message = "";
 $qz_submission_id = 0;
 $duration = 0;
-if ($_SESSION['user']['disqualified']) {
+if (!isset($_SESSION['user'])) {
+    header("Location: " . $Globals['domain'] . "/quiz");
+}
+
+if ($_SESSION['user']['disqualified'] == 1) {
     $allow_attempt = false;
     $attempt_reject_message = $_SESSION['user']['disqualification_reason'];
-    header("Location: " . $Globals['domain'] . "/quiz/reject_attempt?message=" . urlencode($attempt_reject_message));
+    header("Location: " . $Globals['domain'] . "/quiz/participant_reject_attempt.php?message=" . urlencode($attempt_reject_message));
+    exit();
 }
 if (isset($_GET['qid'])) {
     $quiz_id = $_GET['qid'];
+    $_SESSION['quiz_id'] = $quiz_id;
 } else {
     $location = 'participant_dashboard.php';
 }
@@ -69,7 +75,6 @@ if (isset($_POST['submit_quiz'])) {
         $iqstmt = $con->prepare($iqsql);
         $iqstmt->bind_param('siii', $current_time_sbmt_formatted, $score, $quiz_id, $participant_id);
         $iqstmt->execute();
-        $qz_submission_id = $con->insert_id;
         $con->commit();
 
 
@@ -109,13 +114,37 @@ if (!$quiz['allowed_entry']) {
 if ($quiz['start_time'] != null && $quiz['stop_time'] != null) {
     $quiz_started = true;
     $user_id = $_SESSION['user']['user_id'];
-    $ini_chk_sql = "SELECT * FROM quiz_submissions WHERE participant_id = $user_id";
-    $ini_chk_result = $con->query($ini_chk_sql);
+    $ini_chk_sql = "SELECT * FROM quiz_submissions WHERE participant_id = ? AND quiz_id = ?";
+    $ini_chk_stmt = $con->prepare($ini_chk_sql);
+    $ini_chk_stmt->bind_param('ii', $user_id, $quiz_id);
+    $ini_chk_stmt->execute();
+
+    $ini_chk_result = $ini_chk_stmt->get_result();
 
     if ($ini_chk_result->num_rows > 0) {
         $allow_attempt = false;
         $attempt_reject_message = 'Already Attempted the Quiz';
-        header("Location: " . $Globals['domain'] . "/quiz/reject_attempt?message=" . urlencode($attempt_reject_message));
+        $ini_chk_res = $ini_chk_result->fetch_assoc();
+        if ($ini_chk_res['disqualified_submission'] == 0) {
+            if ($ini_chk_res['quiz_submission_time'] == null) {
+                $attempt_reject_message = "Exited during the quiz.";
+                $dis_sql = "UPDATE quiz_submissions SET disqualified_submission = 1, disqualification_reason= ? WHERE quiz_submission_id = ?";
+                $dis_stmt = $con->prepare($dis_sql);
+                $dis_stmt->bind_param('si', $attempt_reject_message, $ini_chk_res['quiz_submission_id']);
+                $dis_stmt->execute();
+                header("Location: " . $Globals['domain'] . "/quiz/participant_reject_attempt.php?message=" . urlencode($attempt_reject_message));
+                exit();
+            } else {
+                $attempt_reject_message = 'Already Attempted the Quiz';
+                header("Location: " . $Globals['domain'] . "/quiz/participant_reject_attempt.php?message=" . urlencode($attempt_reject_message));
+                exit();
+            }
+        } else if ($ini_chk_res['disqualified_submission'] == 1) {
+            $attempt_reject_message = $ini_chk_res['disqualification_reason'];
+            header("Location: " . $Globals['domain'] . "/quiz/participant_reject_attempt.php?message=" . urlencode($attempt_reject_message));
+            exit();
+        }
+        header("Location: " . $Globals['domain'] . "/quiz/participant_reject_attempt.php?message=" . urlencode($attempt_reject_message));
         exit();
     }
 
@@ -131,7 +160,7 @@ if ($quiz['start_time'] != null && $quiz['stop_time'] != null) {
         $attempt_reject_message = "Less than 5 minutes remaining in exam";
     }
     if (!$allow_attempt) {
-        header("Location: " . $Globals['domain'] . "/quiz/reject_attempt?message=" . urlencode($attempt_reject_message));
+        header("Location: " . $Globals['domain'] . "/quiz/participant_reject_attempt.php?message=" . urlencode($attempt_reject_message));
         exit();
     }
 
@@ -140,6 +169,7 @@ if ($quiz['start_time'] != null && $quiz['stop_time'] != null) {
     $current_time_formatted = $current_time->format('Y-m-d H:i:s');
     $ini_sbmt_stmt->bind_param('iis', $quiz_id, $user_id, $current_time_formatted);
     $ini_sbmt_stmt->execute();
+    $qz_submission_id = $con->insert_id;
 
     $sql = "SELECT * FROM questions WHERE quiz_id=? ORDER BY RAND()";
     $stmt = $con->prepare($sql);
@@ -150,6 +180,15 @@ if ($quiz['start_time'] != null && $quiz['stop_time'] != null) {
 ?>
 
 <body>
+    <style>
+        header {
+            justify-content: center;
+        }
+
+        #header-nav {
+            display: none;
+        }
+    </style>
     <h2>Welcome <?php echo $_SESSION['user']['first_name'] ?></h2>
     <section class="dashboard-form-section grid">
         <?php
@@ -204,8 +243,9 @@ if ($quiz['start_time'] != null && $quiz['stop_time'] != null) {
         ?>
             <div class="waiting-message-container">
                 <h3>Quiz has not started yet.</h3>
-                <h3>Please wait for Quiz Master's Instruction on when to press the button.</h3>
-                <button onclick="window.location.reload('Refresh')">Load Quiz</button>
+                <h3>Please wait for Quiz Master's Instruction.</h3>
+                <h4 id="instruction_text"></h4>
+                <button id="exam_btn" onclick="location.reload()">Load Quiz</button>
             </div>
         <?php
         }
@@ -225,7 +265,42 @@ if ($quiz['start_time'] != null && $quiz['stop_time'] != null) {
         <?php
         if ($quiz_started) {
         ?>
+            window.onblur = function() {
+                // Create a form dynamically
+                let form = document.createElement("form");
+                form.method = "POST";
+                form.action = "<?php echo $Globals['domain'] ?>/quiz/participant_cheat_report.php";
+
+                // Add a hidden input field for the 'cheated' parameter
+                let input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "cheated";
+                input.value = "1";
+                form.appendChild(input);
+
+                let rinput = document.createElement("input");
+                rinput.type = "hidden";
+                rinput.name = "cheat_reason";
+                rinput.value = "Detected Potential Malpractice";
+                form.appendChild(rinput);
+
+                // Append the form to the body and submit it
+                document.body.appendChild(form);
+                form.submit();
+            };
+            document.body.addEventListener("contextmenu", function(e) {
+                e.preventDefault();
+            });
             startTimer(<?php echo $duration ?>);
+        <?php
+        } else {
+        ?>
+            window.onblur = function() {
+                window.close();
+            };
+            document.body.addEventListener("contextmenu", function(e) {
+                e.preventDefault();
+            });
         <?php
         }
         ?>

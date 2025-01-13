@@ -42,7 +42,12 @@ if (isset($_POST['add_participant'])) {
 ?>
 
 <body>
-    <h2>Welcome <?php echo $_SESSION['user']['first_name'] ?></h2>
+    <div class="heading-container">
+        <h2>Welcome <?php echo $_SESSION['user']['first_name'] ?></h2>
+        <a onclick="history.back()"><span class="material-symbols-rounded">
+                arrow_back_ios
+            </span> Back</a>
+    </div>
     <section class="dashboard-form-section grid">
         <div class="form-border-container">
             <div class="form-container">

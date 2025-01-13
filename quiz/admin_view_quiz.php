@@ -14,12 +14,7 @@ $search = isset($_POST['search']) ? $_POST['search'] : '';
 
 // SQL query to fetch participants with search
 // Define the base query with placeholders
-$sql = "SELECT quiz_id, quiz_name, 
-       (CASE 
-            WHEN start_time IS NULL OR stop_time IS NULL THEN 0
-            WHEN stop_time <= NOW() THEN 0 
-            ELSE 1 
-        END) AS is_running , duration_in_minutes,total_marks,start_time,stop_time,allowed_entry,is_conducted
+$sql = "SELECT quiz_id, quiz_name,  duration_in_minutes,total_marks,start_time,stop_time,allowed_entry
 FROM quizzes WHERE quiz_name LIKE ? ORDER BY start_time DESC
         LIMIT ?,? ";
 
@@ -66,7 +61,12 @@ $total_pages = ceil($total_records / $records_per_page);
 ?>
 
 <body>
-    <h2>Welcome <?php echo $_SESSION['user']['first_name'] ?></h2>
+    <div class="heading-container">
+        <h2>Welcome <?php echo $_SESSION['user']['first_name'] ?></h2>
+        <a onclick="history.back()"><span class="material-symbols-rounded">
+                arrow_back_ios
+            </span> Back</a>
+    </div>
     <section class="dashboard-home-section grid participant-section">
         <h3>Quizzes</h3>
         <form method="post" class="search-form">
@@ -100,6 +100,7 @@ $total_pages = ceil($total_records / $records_per_page);
                             $start_time = $row['start_time'] == null ? 'Not Started' : $row['start_time'];
                             $stop_time = $row['stop_time'] == null ? 'Not Started' : $row['stop_time'];
                             $is_running = false;
+                            $is_conducted = false;
 
                             if ($row['stop_time'] != null) {  // Explicitly check for NOT NULL
 
@@ -110,6 +111,9 @@ $total_pages = ceil($total_records / $records_per_page);
                                 if ($current_timestamp <= $stop_timespamp) {
                                     $is_running = true;
                                 }
+                                if ($current_timestamp >= $stop_timespamp) {
+                                    $is_conducted = true;
+                                }
                             }
                             echo "<tr>";
                             echo "<td>" . htmlspecialchars($row['quiz_name']) . "</td>";
@@ -119,10 +123,10 @@ $total_pages = ceil($total_records / $records_per_page);
                             echo "<td>" . htmlspecialchars($start_time) . "</td>";
                             echo "<td>" . htmlspecialchars($stop_time) . "</td>";
                             echo "<td>" . htmlspecialchars(!$row['allowed_entry'] ? 'No' : 'Yes') . "</td>";
-                            echo "<td>" . htmlspecialchars(!$row['is_conducted'] ? 'No' : 'Yes') . "</td>";
+                            echo "<td>" . htmlspecialchars($is_conducted ? 'Yes' : 'No') . "</td>";
                             echo '<td>';
                             echo '<div class="action-col-div">';
-                            if (!$is_running) {
+                            if (!$is_running && !$is_conducted) {
                     ?>
 
                                 <a class="hlink" href="<?php echo $Globals['domain'] ?>/quiz/admin_edit_quiz.php?qid=<?php echo $row['quiz_id'] ?>" class="hlink">
@@ -160,11 +164,15 @@ $total_pages = ceil($total_records / $records_per_page);
                 </td>
             <?php
                             }
-                            if ($row['start_time'] != null && $is_running && $row['allowed_entry']) {
+                            if ($row['start_time'] != null && $is_running && $row['allowed_entry'] || $is_conducted) {
             ?>
-                <div class="qz-running-text">
-                    Quiz is Running
-                </div>
+                <a class="hlink" href="<?php echo $Globals['domain'] ?>/quiz/admin_view_results.php?qid=<?php echo $row['quiz_id'] ?>" class="hlink">
+                    <div class="tbl-icon-container secondary">
+                        <span class="material-symbols-rounded">
+                            description
+                        </span>
+                    </div>
+                </a>
     <?php
                             }
                             echo "</tr>";

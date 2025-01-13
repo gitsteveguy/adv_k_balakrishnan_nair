@@ -18,9 +18,6 @@ require_once("./admin_protect.php");
         <div class="card btn" onclick="window.location.href='<?php echo $Globals['domain'] ?>/quiz/admin_view_participants.php'">
             <h2>View / Edit Participants</h2>
         </div>
-        <div class="card btn">
-            <h2>View Results</h2>
-        </div>
     </section>
 
 </body>
