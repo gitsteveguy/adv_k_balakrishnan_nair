@@ -40,6 +40,30 @@ if (isset($_POST['Login'])) {
 <body>
   <section class="quiz-launch">
     <div class="form-border-container">
+      <style>
+        .pwd-container {
+          display: flex;
+          position: relative;
+        }
+
+        #togglePassword {
+          position: absolute;
+          padding: 0.25rem;
+          right: 0;
+          top: 9px;
+          background: transparent;
+          border: none
+        }
+
+        #togglePassword:hover {
+          border: none !important;
+          outline: none;
+        }
+
+        #pwdicon {
+          color: var(--primary-color);
+        }
+      </style>
       <div class="form-container">
         <h2>Quiz Login</h2>
         <?php
@@ -51,12 +75,30 @@ if (isset($_POST['Login'])) {
         ?>
         <form id="login-form" method="post">
           <input type="email" name="email" placeholder="Enter your Email" required>
-          <input type="password" name="password" placeholder="Enter Your Password" required>
+          <div class="pwd-container">
+            <input type="password" id="password" name="password" placeholder="Enter Your Password" required>
+            <button type="button" id="togglePassword"><span class="material-symbols-rounded" id="pwdicon">
+                visibility
+              </span></button>
+          </div>
           <input type="submit" value="Login" name="Login">
         </form>
       </div>
     </div>
   </section>
+  <script>
+    const passwordInput = document.getElementById('password');
+    const togglePasswordButton = document.getElementById('togglePassword');
+
+    togglePasswordButton.addEventListener('click', () => {
+      // Toggle the type attribute
+      let itype = passwordInput.type === 'password' ? 'text' : 'password';
+      passwordInput.type = itype;
+
+      // Update button text
+      pwdicon.innerText = passwordInput.type === 'password' ? 'visibility' : 'visibility_off';
+    });
+  </script>
 
 
 </body>
