@@ -22,7 +22,7 @@ if (isset($_SESSION['user']) && $current_filename == 'index.php') {
 
     header("Location: " . $location);
 }
-if (!isset($_SESSION['user']) && !$current_filename == 'index.php') {
+if (!isset($_SESSION['user']) && $current_filename != 'index.php') {
     header("Location: index.php");
 }
 

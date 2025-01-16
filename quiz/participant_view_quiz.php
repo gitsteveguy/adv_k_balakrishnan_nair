@@ -84,33 +84,7 @@ $result = $stmt->get_result();
 
             // Ensure the window stays fullscreen by listening to resize events
             if (quizWindow) {
-                quizWindow.addEventListener("resize", function() {
 
-                    quizWindow.resizeTo(screenWidth, screenHeight);
-                    quizWindow.moveTo(0, 0);
-                });
-
-                // Reposition the window if it is moved
-                var oldX = quizWindow.screenX,
-                    oldY = quizWindow.screenY;
-
-                var interval = setInterval(function() {
-                    if (oldX != quizWindow.screenX || oldY != quizWindow.screenY) {
-                        quizWindow.moveTo(0, 0);
-
-                    } else {
-
-                    }
-
-                    oldX = quizWindow.screenX;
-                    oldY = quizWindow.screenY;
-                }, 200);
-
-                // Ensure the window is immediately resized and repositioned
-                quizWindow.resizeTo(screenWidth, screenHeight);
-                quizWindow.moveTo(0, 0);
-
-                // Disable right-click within the quiz window
             } else {
                 alert("Popup blocked! Please allow popups for this site to proceed.");
             }

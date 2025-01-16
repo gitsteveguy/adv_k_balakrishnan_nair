@@ -116,7 +116,7 @@ if ($result->num_rows > 0) {
         $imageWidth = imagesx($image);
         $nameBox = imagettfbbox($nameFontSize, $angle, $fontPath, $name);
         $nameWidth = $nameBox[2] - $nameBox[0];
-        $nameX = (($imageWidth - $nameWidth) / 2) - 40;
+        $nameX = (int)(($imageWidth - $nameWidth) / 2) - 40;
         $nameY = 720;
 
         $logo_yearX = 1050; // Adjust based on design

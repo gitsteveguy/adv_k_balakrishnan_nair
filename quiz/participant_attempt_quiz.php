@@ -70,7 +70,7 @@ if (isset($_POST['submit_quiz'])) {
             }
         }
         $current_time_sbmt = new DateTime();
-        $current_time_sbmt_formatted = $current_time_sbmt->format('Y-m-d H:i:s');
+        $current_time_sbmt_formatted = $current_time_sbmt->format('Y-m-d H:i:s.u');
         $iqsql = "UPDATE quiz_submissions SET quiz_submission_time = ?, score = ? WHERE quiz_id=? AND participant_id=?";
         $iqstmt = $con->prepare($iqsql);
         $iqstmt->bind_param('siii', $current_time_sbmt_formatted, $score, $quiz_id, $participant_id);
@@ -164,12 +164,21 @@ if ($quiz['start_time'] != null && $quiz['stop_time'] != null) {
         exit();
     }
 
-    $ini_sbmt_qz = "INSERT INTO quiz_submissions (quiz_id,participant_id,quiz_start_time) VALUES (?,?,?)";
+    // Prepare the query with microsecond support
+    $ini_sbmt_qz = "INSERT INTO quiz_submissions (quiz_id, participant_id, quiz_start_time) VALUES (?,?,?)";
     $ini_sbmt_stmt = $con->prepare($ini_sbmt_qz);
-    $current_time_formatted = $current_time->format('Y-m-d H:i:s');
+
+    // Format current time with microseconds
+    $current_time = new DateTime(); // Assuming $current_time is initialized as a DateTime object
+    $current_time_formatted = $current_time->format('Y-m-d H:i:s.u'); // Adds microseconds
+
+    // Bind parameters and execute
     $ini_sbmt_stmt->bind_param('iis', $quiz_id, $user_id, $current_time_formatted);
     $ini_sbmt_stmt->execute();
+
+    // Get the inserted record's ID
     $qz_submission_id = $con->insert_id;
+
 
     $sql = "SELECT * FROM questions WHERE quiz_id=? ORDER BY RAND()";
     $stmt = $con->prepare($sql);
@@ -292,6 +301,26 @@ if ($quiz['start_time'] != null && $quiz['stop_time'] != null) {
             document.body.addEventListener("contextmenu", function(e) {
                 e.preventDefault();
             });
+            window.addEventListener("resize", function() {
+                window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+                window.moveTo(0, 0);
+            });
+
+            oldX = window.screenX;
+            oldY = window.screenY;
+            var interval = setInterval(function() {
+                if (oldX != window.screenX || oldY != window.screenY) {
+                    window.moveTo(0, 0);
+                    window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+
+                } else {
+
+                }
+
+                oldX = window.screenX;
+                oldY = window.screenY;
+            }, 200);
+
             startTimer(<?php echo $duration ?>);
         <?php
         } else {
@@ -302,6 +331,26 @@ if ($quiz['start_time'] != null && $quiz['stop_time'] != null) {
             document.body.addEventListener("contextmenu", function(e) {
                 e.preventDefault();
             });
+            window.addEventListener("resize", function() {
+                window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+                window.moveTo(0, 0);
+            });
+
+            oldX = window.screenX;
+            oldY = window.screenY;
+            var interval = setInterval(function() {
+                if (oldX != window.screenX || oldY != window.screenY) {
+                    window.moveTo(0, 0);
+                    window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+
+                } else {
+
+                }
+
+                oldX = window.screenX;
+                oldY = window.screenY;
+            }, 200);
+
         <?php
         }
         ?>

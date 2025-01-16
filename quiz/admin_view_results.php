@@ -19,24 +19,26 @@ $search = isset($_POST['search']) ? $_POST['search'] : '';
 // SQL query to fetch participants with search
 // Define the base query with placeholders
 $sql = "SELECT 
-            u.user_id,
-            u.first_name,
-            u.last_name,
-            q.total_marks,
-            qs.score,
-            TIMESTAMPDIFF(SECOND, qs.quiz_start_time, qs.quiz_submission_time) AS time_taken
-        FROM 
-            users u
-        JOIN 
-            quiz_submissions qs ON u.user_id = qs.participant_id
-        JOIN 
-            quizzes q ON qs.quiz_id = q.quiz_id
-        WHERE 
-            qs.quiz_id = ?
-            AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.user_id = ?)
-        ORDER BY 
-            qs.score DESC, time_taken ASC
-        LIMIT ?, ?";
+    u.user_id,
+    u.first_name,
+    u.last_name,
+    q.total_marks,
+    qs.score,
+    TIMESTAMPDIFF(SECOND, qs.quiz_start_time, qs.quiz_submission_time) AS seconds,
+    MOD(TIMESTAMPDIFF(MICROSECOND, qs.quiz_start_time, qs.quiz_submission_time), 1000000) AS microseconds
+FROM 
+    users u
+JOIN 
+    quiz_submissions qs ON u.user_id = qs.participant_id
+JOIN 
+    quizzes q ON qs.quiz_id = q.quiz_id
+WHERE 
+    qs.quiz_id = ?
+    AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.user_id = ?)
+ORDER BY 
+    qs.score DESC, seconds ASC, microseconds ASC
+LIMIT ?, ?
+";
 
 // Prepare the statement
 $stmt = $con->prepare($sql);
@@ -95,12 +97,15 @@ $total_pages = ceil($total_records / $records_per_page);
                         // Loop through and display the data
                         while ($row = $result->fetch_assoc()) {
                             // Convert time_to_finish (in seconds) into minutes and seconds
-                            $time_in_seconds = $row['time_taken'];
-                            $minutes = floor($time_in_seconds / 60);
-                            $seconds = $time_in_seconds % 60;
+                            $seconds = (int)$row['seconds']; // Whole seconds
+                            $microseconds = (int)$row['microseconds']; // Remaining microseconds
 
-                            // Format the time as mm:ss
-                            $formatted_time = sprintf("%02d:%02d", $minutes, $seconds);
+                            // Calculate minutes and seconds
+                            $minutes = floor($seconds / 60);
+                            $remaining_seconds = $seconds % 60;
+
+                            // Format time as mm:ss.ssssss
+                            $formatted_time = sprintf("%02d:%02d.%06d", $minutes, $remaining_seconds, $microseconds);
                             echo "<tr>";
                             echo "<td>" . htmlspecialchars($row['user_id']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['first_name']) . " " . htmlspecialchars($row['last_name']) . "</td>";
