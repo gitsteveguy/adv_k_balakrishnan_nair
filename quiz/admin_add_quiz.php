@@ -101,10 +101,10 @@ if (isset($_POST['add_quiz'])) {
         <h3>Question ${questionCount+1}</h3>
         <textarea maxlength="1000" class="question-text" name="questions[${questionCount}][question]" placeholder="Question" required></textarea>
         <div class="question-creation-options">
-            <input type="text" maxlength="50" name="questions[${questionCount}][option_a]" class="question-opt" placeholder="Option A" required>
-            <input type="text" maxlength="50" name="questions[${questionCount}][option_b]" class="question-opt" placeholder="Option B" required>
-            <input type="text" maxlength="50" name="questions[${questionCount}][option_c]" class="question-opt" placeholder="Option C" required>
-            <input type="text" maxlength="50" name="questions[${questionCount}][option_d]" class="question-opt" placeholder="Option D" required>
+            <input type="text" maxlength="250" name="questions[${questionCount}][option_a]" class="question-opt" placeholder="Option A" required>
+            <input type="text" maxlength="250" name="questions[${questionCount}][option_b]" class="question-opt" placeholder="Option B" required>
+            <input type="text" maxlength="250" name="questions[${questionCount}][option_c]" class="question-opt" placeholder="Option C" required>
+            <input type="text" maxlength="250" name="questions[${questionCount}][option_d]" class="question-opt" placeholder="Option D" required>
         </div>
         <div class="correct-option-container">
             <label for="correct_option">Select Correct Option:</label>

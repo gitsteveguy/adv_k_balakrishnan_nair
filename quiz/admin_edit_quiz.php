@@ -141,10 +141,10 @@ if (isset($_GET['qid'])) {
                                 <input type="hidden" name="update_questions[<?php echo $index - 1 ?>][question_id]" value="<?php echo $question['question_id'] ?>">
                                 <textarea maxlength="1000" name="update_questions[<?php echo $index - 1 ?>][question]" class="question-text" placeholder="Question" required><?php echo $question['question'] ?></textarea>
                                 <div class="question-creation-options">
-                                    <input type="text" maxlength="50" name="update_questions[<?php echo $index - 1 ?>][option_a]" placeholder="Option A" required value="<?php echo $question['option_a'] ?>">
-                                    <input type="text" maxlength="50" name="update_questions[<?php echo $index - 1 ?>][option_b]" placeholder="Option B" required value="<?php echo $question['option_b'] ?>">
-                                    <input type="text" maxlength="50" name="update_questions[<?php echo $index - 1 ?>][option_c]" placeholder="Option C" required value="<?php echo $question['option_c'] ?>">
-                                    <input type="text" maxlength="50" name="update_questions[<?php echo $index - 1 ?>][option_d]" placeholder="Option D" required value="<?php echo $question['option_d'] ?>">
+                                    <input type="text" maxlength="250" name="update_questions[<?php echo $index - 1 ?>][option_a]" placeholder="Option A" required value="<?php echo $question['option_a'] ?>">
+                                    <input type="text" maxlength="250" name="update_questions[<?php echo $index - 1 ?>][option_b]" placeholder="Option B" required value="<?php echo $question['option_b'] ?>">
+                                    <input type="text" maxlength="250" name="update_questions[<?php echo $index - 1 ?>][option_c]" placeholder="Option C" required value="<?php echo $question['option_c'] ?>">
+                                    <input type="text" maxlength="250" name="update_questions[<?php echo $index - 1 ?>][option_d]" placeholder="Option D" required value="<?php echo $question['option_d'] ?>">
                                 </div>
                                 <div class="correct-option-container">
                                     <label for="update_questions[<?php echo $index - 1 ?>][correct_option]">Select Correct Option : </label>
@@ -212,10 +212,10 @@ if (isset($_GET['qid'])) {
         <h3>New Question ${questionCount+1}</h3>
         <textarea maxlength="1000" class="question-text" name="questions[${questionCount}][question]" placeholder="Question" required></textarea>
         <div class="question-creation-options">
-            <input type="text" maxlength="50" name="questions[${questionCount}][option_a]" class="question-opt" placeholder="Option A" required>
-            <input type="text" maxlength="50" name="questions[${questionCount}][option_b]" class="question-opt" placeholder="Option B" required>
-            <input type="text" maxlength="50" name="questions[${questionCount}][option_c]" class="question-opt" placeholder="Option C" required>
-            <input type="text" maxlength="50" name="questions[${questionCount}][option_d]" class="question-opt" placeholder="Option D" required>
+            <input type="text" maxlength="250" name="questions[${questionCount}][option_a]" class="question-opt" placeholder="Option A" required>
+            <input type="text" maxlength="250" name="questions[${questionCount}][option_b]" class="question-opt" placeholder="Option B" required>
+            <input type="text" maxlength="250" name="questions[${questionCount}][option_c]" class="question-opt" placeholder="Option C" required>
+            <input type="text" maxlength="250" name="questions[${questionCount}][option_d]" class="question-opt" placeholder="Option D" required>
         </div>
         <div class="correct-option-container">
             <label for="correct_option">Select Correct Option:</label>
